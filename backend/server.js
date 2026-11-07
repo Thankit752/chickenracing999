@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { pool } from './db.js';
 import { queries } from './queries.js';
 import { customers, ValidationError } from './customers.js';
+import { finance } from './finance.js';
 
 const app = express();
 app.use(express.json());
@@ -33,9 +34,20 @@ app.post('/api/queries/:id/run', async (req, res, next) => {
 // ---------- ลูกค้า ----------
 app.use('/api/customers', customers);
 
+// ---------- ภาพรวม · งบประมาณ · ใบสั่งซื้อ · ต้นทุนรถ · ค่านายหน้า ----------
+app.use('/api', finance);
+
 // ---------- แปลง error ของ PostgreSQL เป็นข้อความที่อ่านเข้าใจ ----------
+// ชื่อข้อกำหนดที่ตั้งเอง (pk_ fk_ uq_ ck_) ทำให้บอกผู้ใช้ได้ตรงจุดว่าผิดกฎข้อไหน
+const CONSTRAINT_MESSAGES = {
+  fk_sale_customer: 'ลบไม่ได้ — ลูกค้ารายนี้มีประวัติการซื้อรถอยู่ (FK fk_sale_customer แบบ RESTRICT)',
+  uq_po_no: 'เลขที่ใบสั่งซื้อนี้มีอยู่แล้ว (uq_po_no)',
+  uq_hidden_unit_cat_date: 'รถคันนี้มีค่าใช้จ่ายหมวดนี้ในวันเดียวกันอยู่แล้ว (uq_hidden_unit_cat_date)',
+  pk_sale_commission: 'พนักงานคนนี้มีค่านายหน้าในการขายนี้อยู่แล้ว (pk_sale_commission)',
+  pk_customer_phone: 'ลูกค้ามีเบอร์นี้อยู่แล้ว (pk_customer_phone)',
+};
 const PG_ERRORS = {
-  23503: { status: 409, message: 'ลบไม่ได้ — ลูกค้ารายนี้มีประวัติการซื้อรถอยู่ (FK fk_sale_customer แบบ RESTRICT)' },
+  23503: { status: 409, message: 'ข้อมูลนี้ถูกอ้างอิงอยู่ หรืออ้างถึงข้อมูลที่ไม่มีอยู่ (FOREIGN KEY)' },
   23505: { status: 409, message: 'ข้อมูลซ้ำกับที่มีอยู่แล้ว' },
   23514: { status: 400, message: 'ข้อมูลไม่ผ่านเงื่อนไข CHECK' },
   '28P01': { status: 500, message: 'รหัสผ่านฐานข้อมูลไม่ถูกต้อง — ตรวจ PGPASSWORD ในไฟล์ .env' },
@@ -47,7 +59,8 @@ app.use((err, req, res, next) => {
   if (err instanceof ValidationError) return res.status(400).json({ error: err.message });
   const known = PG_ERRORS[err.code];
   if (known) {
-    return res.status(known.status).json({ error: known.message, code: err.code, constraint: err.constraint });
+    const message = CONSTRAINT_MESSAGES[err.constraint] || known.message;
+    return res.status(known.status).json({ error: message, code: err.code, constraint: err.constraint });
   }
   if (err.code === 'ECONNREFUSED') {
     return res.status(503).json({ error: 'ต่อ PostgreSQL ไม่ได้ — เปิดบริการ postgresql ก่อน' });

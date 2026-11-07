@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ต้นทุนรถ — Chicken Racing 999</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono&family=IBM+Plex+Sans+Thai:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="logo.png">
+</head>
+<body>
+  <header id="topbar"></header>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>ต้นทุนจริงต่อคันและค่าใช้จ่ายแฝง</h1>
+        <p>ต้นทุนจริง = ราคาซื้อจากโรงงานหลังหักส่วนลด + ค่าใช้จ่ายแฝงสะสม · กำไรสุทธิ = ราคาขาย − ต้นทุนจริง − ค่านายหน้า</p>
+      </div>
+      <div class="toolbar">
+        <label class="sr" for="filter">แสดงรถ</label>
+        <select class="select" id="filter">
+          <option value="">รถทุกคัน</option>
+          <option value="STOCK">ยังไม่ได้ขาย (ในสต็อก + จอง)</option>
+          <option value="SOLD">ขายแล้ว</option>
+        </select>
+        <input class="search" id="search" type="search" placeholder="ค้นเลขตัวถัง รุ่น หรือสาขา" aria-label="ค้นหารถ">
+      </div>
+    </div>
+    <p class="callout" id="summary"></p>
+    <div class="table-wrap" style="margin-top:14px">
+      <table>
+        <thead><tr><th>เลขตัวถัง</th><th>รุ่น / สาขา</th><th>สถานะ</th><th class="num">ราคาซื้อ</th><th class="num">ค่าใช้จ่ายแฝง</th><th class="num">ต้นทุนจริง</th><th class="num">ราคาขาย</th><th class="num">ค่านายหน้า</th><th class="num">กำไรสุทธิ</th><th><span class="sr">จัดการ</span></th></tr></thead>
+        <tbody id="rows"><tr><td colspan="10" class="empty">กำลังโหลด…</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+
+  <dialog id="dlg" class="wide" aria-labelledby="dlgTitle">
+    <div class="dlg-head"><h2 id="dlgTitle">ค่าใช้จ่ายแฝง</h2></div>
+    <div class="dlg-body">
+      <p id="dlgInfo"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>วันที่</th><th>หมวด</th><th class="num">จำนวนเงิน</th><th>เลขอ้างอิง / หมายเหตุ</th><th><span class="sr">จัดการ</span></th></tr></thead>
+          <tbody id="hcRows"></tbody>
+        </table>
+      </div>
+      <form id="hcForm">
+        <fieldset>
+          <legend id="hcLegend">เพิ่มค่าใช้จ่ายแฝง</legend>
+          <div class="inline-form">
+            <div class="field"><label for="hc_cat">หมวด</label><select id="hc_cat" required></select></div>
+            <div class="field"><label for="hc_date">วันที่</label><input id="hc_date" type="date" required></div>
+            <div class="field"><label for="hc_amount">จำนวนเงิน (บาท)</label><input id="hc_amount" type="number" min="0.01" step="0.01" required></div>
+            <div class="field"><label for="hc_ref">เลขอ้างอิง</label><input id="hc_ref" maxlength="30"></div>
+          </div>
+          <div class="field" style="margin-top:8px"><label for="hc_note">หมายเหตุ (ไม่บังคับ)</label><input id="hc_note" maxlength="200"></div>
+          <div class="run-row" style="margin:12px 0 0">
+            <button class="btn btn-primary" type="submit" id="hcSave">เพิ่มรายการ</button>
+            <button class="btn btn-ghost" type="button" id="hcCancel" hidden>ยกเลิกการแก้ไข</button>
+          </div>
+          <p class="error" id="hcError" hidden></p>
+        </fieldset>
+      </form>
+    </div>
+    <div class="dlg-foot"><button class="btn" type="button" id="close">ปิด</button></div>
+  </dialog>
+
+  <script src="layout.js"></script>
+  <script type="module" src="costs.js"></script>
+</body>
+</html>

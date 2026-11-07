@@ -3,33 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>คำสั่งสืบค้น 5 ข้อ — moto_budget</title>
+  <title>ภาพรวม — Chicken Racing 999</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono&family=IBM+Plex+Sans+Thai:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="logo.png">
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <strong>งบจัดซื้อ ค่านายหน้า และค่าใช้จ่ายแฝง</strong>
-        <span>ตัวแทนจำหน่ายรถจักรยานยนต์ · โครงงาน CE396</span>
-      </div>
-      <nav class="nav" aria-label="เมนูหลัก">
-        <a href="index.html" aria-current="page">คำสั่งสืบค้น 5 ข้อ</a>
-        <a href="customers.html">ลูกค้า</a>
-      </nav>
+  <header id="topbar"></header>
+  <main>
+    <div class="stats" id="stats"><p class="empty">กำลังโหลดภาพรวม…</p></div>
+    <div class="shortcuts">
+      <a class="btn btn-primary" href="budget.html#new">บันทึกใบสั่งซื้อ</a>
+      <a class="btn" href="costs.html">จัดการค่าใช้จ่ายแฝง</a>
+      <a class="btn" href="commissions.html">คำนวณค่านายหน้า</a>
     </div>
-  </header>
 
-  <main class="q-layout">
-    <ol class="q-list" id="qList" role="tablist" aria-label="เลือกคำถามทางธุรกิจ"></ol>
-    <section class="q-panel" id="qPanel" role="tabpanel" aria-live="polite">
-      <p class="empty">กำลังโหลดคำสั่งสืบค้น…</p>
+    <section class="section">
+      <h2>ยอดรายเดือน</h2>
+      <p class="sub">เงินจัดซื้อรถ ค่าใช้จ่ายแฝง และค่านายหน้า แยกกราฟละเรื่องเพราะหลักตัวเลขต่างกันมาก ชี้ที่แท่งเพื่อดูยอด</p>
+      <div class="charts" id="charts"></div>
+      <details class="data-table">
+        <summary>ดูเป็นตาราง</summary>
+        <div class="table-wrap" id="monthTable"></div>
+      </details>
     </section>
   </main>
-
-  <script type="module" src="queries.js"></script>
+  <script src="layout.js"></script>
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>

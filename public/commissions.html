@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ค่านายหน้า — Chicken Racing 999</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono&family=IBM+Plex+Sans+Thai:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="logo.png">
+</head>
+<body>
+  <header id="topbar"></header>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>ค่านายหน้าพนักงานขาย</h1>
+        <p>หนึ่งการขายแบ่งค่านายหน้าได้หลายคน (ตาราง sale_commission เชื่อม M:N) ระบบคำนวณยอดจากราคาขายจริงให้อัตโนมัติ</p>
+      </div>
+      <div class="toolbar"><button class="btn btn-primary" id="addBtn" type="button">คำนวณและบันทึกค่านายหน้า</button></div>
+    </div>
+
+    <div class="callout">
+      <p><b>เกณฑ์การคำนวณ</b> — ค่านายหน้า = ราคาขายจริง × อัตรา ÷ 100</p>
+      <p id="rules"></p>
+    </div>
+
+    <section class="section">
+      <h2>สรุปรายพนักงาน</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>พนักงาน</th><th>สาขา</th><th class="num">อัตราประจำตัว</th><th class="num">จำนวนดีล</th><th class="num">ค่านายหน้ารวม</th><th class="num">จ่ายแล้ว</th><th class="num">ค้างจ่าย</th></tr></thead>
+          <tbody id="summary"><tr><td colspan="7" class="empty">กำลังโหลด…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>รายการค่านายหน้ารายดีล</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>การขาย</th><th>รุ่น</th><th>พนักงาน</th><th>บทบาท</th><th class="num">ราคาขาย</th><th class="num">อัตรา</th><th class="num">ค่านายหน้า</th><th>การจ่าย</th><th><span class="sr">จัดการ</span></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="dlg" aria-labelledby="dlgTitle">
+    <form id="form">
+      <div class="dlg-head"><h2 id="dlgTitle">คำนวณค่านายหน้า</h2></div>
+      <div class="dlg-body">
+        <div class="field"><label for="f_sale">การขาย</label><select id="f_sale" required></select></div>
+        <div class="grid-2">
+          <div class="field"><label for="f_sp">พนักงานขาย</label><select id="f_sp" required></select></div>
+          <div class="field"><label for="f_role">บทบาทในดีล</label>
+            <select id="f_role">
+              <option value="LEAD">ผู้ปิดการขาย</option>
+              <option value="ASSIST">ผู้ช่วยขาย</option>
+              <option value="REFERRAL">ผู้แนะนำ</option>
+            </select>
+          </div>
+        </div>
+        <div class="callout total-line"><span id="calcText"></span><b id="calcAmount">0.00</b></div>
+        <p class="error" id="formError" hidden></p>
+      </div>
+      <div class="dlg-foot">
+        <button class="btn" type="button" id="cancel">ยกเลิก</button>
+        <button class="btn btn-primary" type="submit" id="save">บันทึกค่านายหน้า</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="layout.js"></script>
+  <script type="module" src="commissions.js"></script>
+</body>
+</html>

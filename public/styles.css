@@ -45,9 +45,11 @@ button, input, select { font: inherit; color: inherit; }
   max-width: 1240px; margin: 0 auto;
   display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
 }
-.brand { display: flex; flex-direction: column; }
-.brand strong { font: 700 22px/1.2 var(--font-head); letter-spacing: .01em; }
-.brand span { font-size: 14px; color: #b9c4cc; }
+.brand { display: flex; align-items: center; gap: 14px; color: inherit; text-decoration: none; }
+.brand img { width: 64px; height: auto; flex: none; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); }
+.brand-text { display: flex; flex-direction: column; }
+.brand strong { font: 700 24px/1.15 var(--font-head); letter-spacing: .01em; }
+.brand-text > span { font-size: 14px; color: #b9c4cc; }
 .nav { display: flex; gap: 6px; }
 .nav a {
   color: #dbe2e7; text-decoration: none; padding: 8px 16px; border-radius: var(--radius-s);
@@ -190,3 +192,92 @@ fieldset legend { padding: 0 6px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* =====================================================================
+   หน้าธุรกิจ: ภาพรวม · งบจัดซื้อ · ต้นทุนรถ · ค่านายหน้า
+   ===================================================================== */
+.section { margin-top: 36px; }
+.section > h2 { font-size: 22px; margin-bottom: 4px; }
+.section > .sub { color: var(--muted); margin: 0 0 14px; max-width: 70ch; }
+.panel { background: var(--paper); border-radius: var(--radius-m); padding: 22px 24px; }
+.select {
+  padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--paper);
+}
+
+/* ตัวเลขหลัก 4 ช่อง — ช่องแรกใหญ่กว่า เพราะเป็นคำถามหลักของระบบ: เงินจัดซื้อเหลือเท่าไร */
+.stats { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 14px; }
+.stat { background: var(--paper); border-radius: var(--radius-m); padding: 20px 22px; display: grid; gap: 6px; align-content: start; }
+.stat-label { color: var(--muted); font-size: 15px; }
+.stat-value { font: 700 30px/1.1 var(--font-head); font-variant-numeric: tabular-nums; }
+.stat-hero { background: var(--asphalt); color: #fff; }
+.stat-hero .stat-label, .stat-hero .stat-note { color: #c4ced5; }
+.stat-hero .stat-value { font-size: 40px; color: var(--lane); }
+.stat-note { font-size: 14px; color: var(--muted); }
+
+/* แถบวัดสัดส่วนการใช้งบ */
+.meter { height: 8px; background: #e3e8eb; border-radius: 4px; overflow: hidden; min-width: 90px; }
+.meter > span { display: block; height: 100%; background: var(--asphalt-2); border-radius: 4px; }
+.stat-hero .meter { background: rgba(255,255,255,.18); }
+.stat-hero .meter > span { background: var(--lane); }
+.meter.over > span { background: var(--brake); }
+.pct { display: grid; grid-template-columns: 1fr 58px; gap: 10px; align-items: center; }
+.pct b { font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.over-label { color: var(--brake); font-weight: 600; }
+
+.shortcuts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.shortcuts a { text-decoration: none; }
+
+/* กราฟแท่งรายเดือน — แยก 3 กราฟเพราะหน่วยต่างกันมาก (ห้ามรวมแกนเดียว) */
+.charts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.chart { background: var(--paper); border-radius: var(--radius-m); padding: 18px 18px 12px; position: relative; }
+.chart h3 { font-size: 17px; }
+.chart .total { color: var(--muted); font-size: 14px; margin: 2px 0 8px; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .bar { fill: var(--asphalt-2); }
+.chart .hit:hover + .bar, .chart .bar.on { fill: var(--asphalt); }
+.chart .axis { stroke: #c9d1d6; stroke-width: 1; }
+.chart text { font: 12px var(--font-body); fill: var(--muted); }
+.chart text.val { fill: var(--ink); font-weight: 500; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--asphalt); color: #fff; font-size: 13px;
+  padding: 6px 10px; border-radius: var(--radius-s); white-space: nowrap; transform: translate(-50%, -100%);
+}
+details.data-table { margin-top: 12px; }
+details.data-table summary { cursor: pointer; color: var(--muted); }
+details.data-table .table-wrap { margin-top: 10px; }
+
+/* ป้ายสถานะ — มีข้อความกำกับเสมอ ไม่ใช้สีอย่างเดียว */
+.badge { display: inline-block; font: 600 12px/1 var(--font-head); padding: 5px 8px; border-radius: var(--radius-s); border: 1px solid; }
+.badge.DRAFT, .badge.IN_STOCK { color: #44515b; border-color: #b8c2c9; background: #f3f5f6; }
+.badge.APPROVED, .badge.RESERVED { color: #5b4500; border-color: #e6c65a; background: #fff6d6; }
+.badge.RECEIVED, .badge.SOLD, .badge.paid { color: #1d5a37; border-color: #9cc9ad; background: #eaf6ef; }
+.badge.CANCELLED { color: #7a2119; border-color: #e3a8a2; background: #fbeceb; }
+.badge.unpaid { color: #7a2119; border-color: #e3a8a2; background: #fff; }
+
+.link-btn { background: none; border: 0; padding: 0; color: var(--asphalt); font-weight: 600; text-decoration: underline; cursor: pointer; }
+.neg { color: var(--brake); }
+td.actions { text-align: right; }
+td.actions .btn { padding: 5px 10px; font-size: 14px; }
+.branch-row td { background: #f3f5f6; font: 600 15px var(--font-head); }
+.callout { border-left: 4px solid var(--lane); background: var(--paper); padding: 14px 18px; border-radius: var(--radius-s); }
+.callout p { margin: 4px 0; }
+
+dialog.wide { width: min(860px, calc(100vw - 32px)); }
+.item-row { display: grid; grid-template-columns: 1.6fr 80px 1fr 1fr auto; gap: 8px; align-items: center; }
+.item-row input, .item-row select { padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--paper); min-width: 0; }
+.item-head { font-size: 13px; color: var(--muted); }
+.total-line { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+.total-line b { font: 700 20px var(--font-head); }
+.inline-form { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 8px; align-items: end; }
+.inline-form .field input, .inline-form .field select { min-width: 0; }
+
+@media (max-width: 980px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .charts { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr; }
+  .item-row { grid-template-columns: 1fr 1fr; }
+  .inline-form { grid-template-columns: 1fr; }
+  .nav { flex-wrap: wrap; }
+}

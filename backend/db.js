@@ -11,7 +11,7 @@ pg.types.setTypeParser(1082, (v) => v);
 
 export const pool = new pg.Pool({
   options: '-c search_path=moto_budget',
-  max: 5,
+  max: Number(process.env.PGPOOL_MAX) || 5,
 });
 // connection ที่ว่างอยู่หลุด (เช่น รีสตาร์ต PostgreSQL) — log ไว้ ไม่ให้เซิร์ฟเวอร์ล่ม
 pool.on('error', (err) => console.error('idle pg client error:', err.message));

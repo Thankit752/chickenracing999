@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>งบจัดซื้อ — Chicken Racing 999</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono&family=IBM+Plex+Sans+Thai:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="logo.png">
+</head>
+<body>
+  <header id="topbar"></header>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>งบจัดซื้อและใบสั่งซื้อ</h1>
+        <p>วงเงินที่แต่ละสาขาได้รับจัดสรร เทียบกับที่ใช้ไปจริง ใบสั่งซื้อใหม่จะบันทึกได้ก็ต่อเมื่อยอดไม่เกินงบจัดซื้อคงเหลือ</p>
+      </div>
+      <div class="toolbar">
+        <label class="sr" for="period">รอบงบประมาณ</label>
+        <select class="select" id="period"></select>
+        <button class="btn btn-primary" id="newPo" type="button">บันทึกใบสั่งซื้อ</button>
+      </div>
+    </div>
+
+    <section>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>หมวดค่าใช้จ่าย</th><th class="num">วงเงินที่จัดสรร</th><th class="num">ใช้ไปจริง</th><th class="num">คงเหลือ</th><th style="min-width:180px">สัดส่วนที่ใช้</th></tr></thead>
+          <tbody id="budgetRows"><tr><td colspan="5" class="empty">กำลังโหลด…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>ใบสั่งซื้อในรอบนี้</h2>
+      <p class="sub">ใบที่ยกเลิกไม่นับเป็นยอดใช้งบ · กดเลขที่ใบเพื่อดูรายการรถ</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>เลขที่</th><th>วันที่สั่ง</th><th>สาขา</th><th>ผู้จำหน่าย</th><th class="num">จำนวนรถ</th><th class="num">ยอดรวม</th><th>สถานะ</th><th><span class="sr">จัดการ</span></th></tr></thead>
+          <tbody id="poRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="poDlg" class="wide" aria-labelledby="poTitle">
+    <form id="poForm">
+      <div class="dlg-head"><h2 id="poTitle">บันทึกใบสั่งซื้อ</h2></div>
+      <div class="dlg-body">
+        <div class="grid-2">
+          <div class="field"><label for="po_no">เลขที่ใบสั่งซื้อ</label><input id="po_no" required maxlength="20" placeholder="PO-6902-008"></div>
+          <div class="field"><label for="po_period">รอบงบประมาณ</label><select id="po_period" required></select></div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label for="po_branch">สาขา</label><select id="po_branch" required></select></div>
+          <div class="field"><label for="po_supplier">ผู้จำหน่าย</label><select id="po_supplier" required></select></div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label for="po_date">วันที่สั่งซื้อ</label><input id="po_date" type="date" required></div>
+          <div class="field"><label for="po_expected">คาดว่าจะได้รับ (ไม่บังคับ)</label><input id="po_expected" type="date"></div>
+        </div>
+        <fieldset>
+          <legend>รายการรถ</legend>
+          <div class="item-row item-head" aria-hidden="true"><span>รุ่น</span><span>จำนวน</span><span>ราคาต่อคัน</span><span>ส่วนลดรวม</span><span></span></div>
+          <div class="phone-rows" id="itemRows"></div>
+          <button class="btn btn-ghost" id="addItem" type="button">+ เพิ่มรายการ</button>
+        </fieldset>
+        <div class="callout total-line">
+          <span>ยอดใบสั่งซื้อ <b id="poTotal">0.00</b></span>
+          <span id="poRemain"></span>
+        </div>
+        <p class="error" id="poError" hidden></p>
+      </div>
+      <div class="dlg-foot">
+        <button class="btn" type="button" data-close>ยกเลิก</button>
+        <button class="btn btn-primary" type="submit" id="poSave">บันทึกใบสั่งซื้อ</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="viewDlg" class="wide" aria-labelledby="viewTitle">
+    <div class="dlg-head"><h2 id="viewTitle">ใบสั่งซื้อ</h2></div>
+    <div class="dlg-body" id="viewBody"></div>
+    <div class="dlg-foot"><button class="btn" type="button" data-close>ปิด</button></div>
+  </dialog>
+
+  <script src="layout.js"></script>
+  <script type="module" src="budget.js"></script>
+</body>
+</html>
