@@ -1,0 +1,153 @@
+%% CE396 — ระบบบริหารงบประมาณการจัดซื้อ ค่านายหน้า และค่าใช้จ่ายแฝง (v2: + customer_phone)
+%% ไฟล์ต้นฉบับที่แก้ไขได้ — วางใน https://mermaid.live หรือ Import > Mermaid ใน draw.io
+erDiagram
+    branch ||--o{ budget_allocation : "ได้รับจัดสรร"
+    budget_period ||--o{ budget_allocation : "ในรอบ"
+    expense_category ||--o{ budget_allocation : "หมวด"
+
+    branch ||--o{ purchase_order : "สั่งซื้อ"
+    supplier ||--o{ purchase_order : "ขายให้"
+    budget_period ||--o{ purchase_order : "ตัดงบรอบ"
+    purchase_order ||--|{ purchase_order_item : "ประกอบด้วย"
+    motorcycle_model ||--o{ purchase_order_item : "ถูกสั่งเป็น"
+    purchase_order_item ||--o{ vehicle_unit : "รับเข้าเป็นคัน"
+    motorcycle_model ||--o{ vehicle_unit : "เป็นรุ่น"
+
+    vehicle_unit ||--o{ hidden_cost : "มีค่าใช้จ่ายแฝง"
+    expense_category ||--o{ hidden_cost : "จัดอยู่ในหมวด"
+
+    vehicle_unit ||--|| sale : "ถูกขายครั้งเดียว"
+    customer ||--o{ sale : "ซื้อ"
+    customer ||--|{ customer_phone : "มีเบอร์โทร"
+    branch ||--o{ sale : "ขายที่สาขา"
+    budget_period ||--o{ sale : "อยู่ในรอบ"
+    sale ||--o{ sale_commission : "แบ่งค่านายหน้า"
+    salesperson ||--o{ sale_commission : "ได้รับ"
+    branch ||--o{ salesperson : "สังกัด"
+
+    branch {
+        serial branch_id PK
+        varchar branch_code UK
+        varchar branch_name
+        varchar province
+        date opened_date
+    }
+    budget_period {
+        serial period_id PK
+        integer fiscal_year UK
+        smallint quarter UK
+        date start_date
+        date end_date
+        varchar status
+    }
+    expense_category {
+        serial category_id PK
+        varchar category_code UK
+        varchar category_name
+        varchar cost_type "PURCHASE|COMMISSION|HIDDEN"
+        boolean is_controlled
+    }
+    budget_allocation {
+        serial allocation_id PK
+        integer branch_id FK
+        integer period_id FK
+        integer category_id FK
+        numeric amount_allocated
+        varchar approved_by
+        timestamptz approved_at
+    }
+    supplier {
+        serial supplier_id PK
+        varchar supplier_code UK
+        varchar supplier_name
+        char tax_id UK
+        integer credit_term_days
+        varchar contact_phone
+    }
+    motorcycle_model {
+        serial model_id PK
+        varchar model_code UK
+        varchar brand
+        varchar model_name
+        integer engine_cc
+        numeric standard_cost
+        numeric suggested_price
+    }
+    purchase_order {
+        serial po_id PK
+        varchar po_no UK
+        integer branch_id FK
+        integer supplier_id FK
+        integer period_id FK
+        date order_date
+        date expected_date
+        varchar status
+    }
+    purchase_order_item {
+        integer po_id PK "FK"
+        integer line_no PK
+        integer model_id FK
+        integer qty
+        numeric unit_cost
+        numeric discount_amount
+    }
+    vehicle_unit {
+        serial unit_id PK
+        varchar vin UK
+        integer po_id FK
+        integer line_no FK
+        integer model_id FK
+        varchar color
+        date receive_date
+        varchar status
+    }
+    customer {
+        serial customer_id PK
+        varchar first_name
+        varchar last_name
+        varchar email
+        varchar customer_type
+    }
+    customer_phone {
+        integer customer_id PK "FK"
+        varchar phone_no PK
+        varchar phone_type "MOBILE|HOME|WORK"
+        boolean is_primary "เบอร์หลักได้ 1 เบอร์"
+    }
+    salesperson {
+        serial salesperson_id PK
+        varchar emp_code UK
+        varchar full_name
+        integer branch_id FK
+        date hire_date
+        numeric base_commission_pct
+        boolean is_active
+    }
+    sale {
+        serial sale_id PK
+        varchar sale_no UK
+        integer unit_id FK "UNIQUE = 1:1"
+        integer customer_id FK
+        integer branch_id FK
+        integer period_id FK
+        date sale_date
+        numeric sale_price
+        varchar payment_type
+    }
+    sale_commission {
+        integer sale_id PK "FK"
+        integer salesperson_id PK "FK"
+        varchar role_in_deal
+        numeric commission_pct
+        numeric commission_amount
+        date paid_date
+    }
+    hidden_cost {
+        serial hidden_cost_id PK
+        integer unit_id FK
+        integer category_id FK
+        date cost_date
+        numeric amount
+        varchar reference_no
+        varchar note
+    }

@@ -1,0 +1,16 @@
+{
+  "name": "ce396-moto-budget",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CE396 — ระบบบริหารงบประมาณการจัดซื้อ ค่านายหน้า และค่าใช้จ่ายแฝง (ตัวแทนจำหน่ายรถจักรยานยนต์)",
+  "type": "module",
+  "scripts": {
+    "db:setup": "node --env-file=.env scripts/setup-db.js",
+    "start": "node --env-file=.env backend/server.js",
+    "dev": "node --env-file=.env --watch backend/server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}

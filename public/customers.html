@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ลูกค้า — moto_budget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono&family=IBM+Plex+Sans+Thai:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <strong>งบจัดซื้อ ค่านายหน้า และค่าใช้จ่ายแฝง</strong>
+        <span>ตัวแทนจำหน่ายรถจักรยานยนต์ · โครงงาน CE396</span>
+      </div>
+      <nav class="nav" aria-label="เมนูหลัก">
+        <a href="index.html">คำสั่งสืบค้น 5 ข้อ</a>
+        <a href="customers.html" aria-current="page">ลูกค้า</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>ลูกค้า</h1>
+        <p>ลูกค้าหนึ่งคนมีเบอร์โทรได้หลายเบอร์ เก็บแยกในตาราง customer_phone · ป้ายสีเหลืองคือเบอร์หลัก</p>
+      </div>
+      <div class="toolbar">
+        <input class="search" id="search" type="search" placeholder="ค้นชื่อ อีเมล หรือเบอร์โทร" aria-label="ค้นหาลูกค้า">
+        <button class="btn btn-primary" id="addBtn" type="button">เพิ่มลูกค้า</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th class="num">รหัส</th><th>ชื่อ</th><th>เบอร์โทร</th><th>อีเมล</th><th class="num">ซื้อรถ (คัน)</th><th><span class="sr">จัดการ</span></th></tr></thead>
+        <tbody id="rows"><tr><td colspan="6" class="empty">กำลังโหลด…</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+
+  <dialog id="dlg" aria-labelledby="dlgTitle">
+    <form id="form" method="dialog">
+      <div class="dlg-head"><h2 id="dlgTitle">เพิ่มลูกค้า</h2></div>
+      <div class="dlg-body">
+        <div class="grid-2">
+          <div class="field"><label for="first_name">ชื่อ</label><input id="first_name" name="first_name" required maxlength="60"></div>
+          <div class="field"><label for="last_name">นามสกุล</label><input id="last_name" name="last_name" required maxlength="60"></div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label for="email">อีเมล (ไม่บังคับ)</label><input id="email" name="email" type="email" maxlength="120"></div>
+          <div class="field"><label for="customer_type">ประเภทลูกค้า</label>
+            <select id="customer_type" name="customer_type">
+              <option value="INDIVIDUAL">บุคคลทั่วไป</option>
+              <option value="CORPORATE">นิติบุคคล</option>
+            </select>
+          </div>
+        </div>
+        <fieldset>
+          <legend>เบอร์โทร</legend>
+          <p class="hint">ต้องมีอย่างน้อย 1 เบอร์ และเลือกเบอร์หลักได้เบอร์เดียว</p>
+          <div class="phone-rows" id="phoneRows"></div>
+          <button class="btn btn-ghost" id="addPhone" type="button">+ เพิ่มเบอร์</button>
+        </fieldset>
+        <p class="error" id="formError" hidden></p>
+      </div>
+      <div class="dlg-foot">
+        <button class="btn" type="button" id="cancelBtn">ยกเลิก</button>
+        <button class="btn btn-primary" type="submit" id="saveBtn">บันทึกลูกค้า</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="customers.js"></script>
+</body>
+</html>
