@@ -6,7 +6,10 @@ import { ValidationError } from './customers.js';
 export const finance = Router();
 
 const isId = (v) => /^\d{1,10}$/.test(String(v)) && Number(v) <= 2147483647;
-const isDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? ''));
+// ต้องเป็นวันที่ที่มีอยู่จริง — 2026-02-30 ผ่าน regex แต่แปลงกลับแล้วไม่ตรง จึงไม่ผ่าน
+const isDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? ''))
+  && !Number.isNaN(Date.parse(`${v}T00:00:00Z`))
+  && new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v;
 const money = (v) => Number(v);
 function requireIds(obj, keys) {
   for (const k of keys) if (!isId(obj[k])) throw new ValidationError(`ข้อมูล ${k} ไม่ถูกต้อง`);
@@ -244,7 +247,16 @@ finance.patch('/purchase-orders/:id/status', async (req, res, next) => {
     if (!(NEXT_STATUS[po.status] || []).includes(to)) {
       throw new ValidationError(`เปลี่ยนสถานะจาก ${po.status} เป็น ${to} ไม่ได้`);
     }
-    await pool.query('UPDATE purchase_order SET status = $1 WHERE po_id = $2', [to, req.params.id]);
+    if (to === 'CANCELLED') {
+      const { rowCount } = await pool.query('SELECT 1 FROM vehicle_unit WHERE po_id = $1 LIMIT 1', [req.params.id]);
+      if (rowCount) throw new ValidationError('ยกเลิกไม่ได้ — ใบสั่งซื้อนี้รับรถเข้าสต็อกแล้ว');
+    }
+    // ใส่สถานะเดิมใน WHERE กันสองคนกดพร้อมกันแล้วเขียนทับ (เช่น คนหนึ่งยกเลิก อีกคนอนุมัติ)
+    const { rowCount } = await pool.query(
+      'UPDATE purchase_order SET status = $1 WHERE po_id = $2 AND status = $3',
+      [to, req.params.id, po.status],
+    );
+    if (rowCount === 0) return res.status(409).json({ error: 'สถานะใบสั่งซื้อเพิ่งถูกเปลี่ยนโดยคนอื่น — โหลดหน้าใหม่แล้วลองอีกครั้ง' });
     res.json({ po_id: Number(req.params.id), status: to });
   } catch (err) { next(err); }
 });

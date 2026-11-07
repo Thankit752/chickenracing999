@@ -1,4 +1,4 @@
-import { api, esc, baht, int, dateTh, today, badge, toast } from './common.js';
+import { api, esc, baht, int, dateTh, today, badge, toast, confirmBox, guardForm } from './common.js';
 
 const periodSel = document.getElementById('period');
 const budgetRows = document.getElementById('budgetRows');
@@ -88,11 +88,14 @@ function readItems() {
 }
 
 // แสดงยอดรวมสด ๆ และงบคงเหลือของสาขา/รอบที่เลือก
+let totalSeq = 0;
 async function updateTotal() {
+  const my = ++totalSeq;   // คำตอบที่มาช้ากว่าคำขอล่าสุด ทิ้งไป ไม่ให้ทับตัวเลขที่ถูกต้อง
+  const lines = await api(`/api/budget?period_id=${poForm.po_period.value}`).catch(() => []);
+  if (my !== totalSeq) return;
   const total = readItems().reduce((s, it) => s + (it.qty || 0) * (it.unit_cost || 0) - (it.discount_amount || 0), 0);
   document.getElementById('poTotal').textContent = baht(total);
   const remainEl = document.getElementById('poRemain');
-  const lines = await api(`/api/budget?period_id=${poForm.po_period.value}`).catch(() => []);
   const line = lines.find((l) => l.cost_type === 'PURCHASE' && String(l.branch_id) === poForm.po_branch.value);
   if (!line) { remainEl.innerHTML = '<span class="over-label">สาขานี้ไม่มีงบจัดซื้อในรอบนี้</span>'; return; }
   const remain = line.amount_allocated - line.spent;
@@ -119,6 +122,7 @@ function openPoForm() {
   setDefaultDate();
   itemRows.innerHTML = '';
   addItemRow();
+  guard.mark();
   poDlg.showModal();
   updateTotal();
   poForm.po_no.focus();
@@ -186,8 +190,18 @@ poRows.addEventListener('click', async (e) => {
     document.getElementById('viewDlg').showModal();
   }
   if (act) {
-    const label = act.dataset.status === 'APPROVED' ? 'อนุมัติ' : 'ยกเลิก';
-    if (act.dataset.status === 'CANCELLED' && !confirm('ยกเลิกใบสั่งซื้อนี้? ยอดจะไม่นับเป็นการใช้งบอีก')) return;
+    const approve = act.dataset.status === 'APPROVED';
+    const label = approve ? 'อนุมัติ' : 'ยกเลิก';
+    const poNo = act.closest('tr').querySelector('[data-view]').textContent;
+    const ok = await confirmBox(approve
+      ? `อนุมัติใบสั่งซื้อ ${poNo} เพื่อส่งให้ผู้จำหน่าย อนุมัติแล้วกลับเป็นร่างไม่ได้`
+      : `ยกเลิกใบสั่งซื้อ ${poNo} ยอดนี้จะไม่นับเป็นการใช้งบอีก และยกเลิกแล้วกู้คืนไม่ได้`, {
+      title: approve ? 'อนุมัติใบสั่งซื้อ?' : 'ยกเลิกใบสั่งซื้อ?',
+      ok: approve ? 'อนุมัติ' : 'ยกเลิกใบสั่งซื้อ',
+      cancel: approve ? 'ไม่ใช่' : 'ไม่ยกเลิก',
+      danger: !approve,
+    });
+    if (!ok) return;
     try {
       await api(`/api/purchase-orders/${act.dataset.id}/status`, { method: 'PATCH', body: { status: act.dataset.status } });
       toast(`${label}ใบสั่งซื้อแล้ว`);
@@ -196,7 +210,12 @@ poRows.addEventListener('click', async (e) => {
   }
 });
 
-document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+const guard = guardForm(poDlg, poForm);
+// ฟอร์มใบสั่งซื้อถามก่อนทิ้งข้อมูล · หน้าต่างดูรายละเอียดปิดได้เลย
+document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => {
+  const d = b.closest('dialog');
+  if (d === poDlg) guard.tryClose(); else d.close();
+}));
 document.getElementById('newPo').addEventListener('click', openPoForm);
 periodSel.addEventListener('change', reload);
 

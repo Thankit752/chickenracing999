@@ -281,3 +281,9 @@ dialog.wide { width: min(860px, calc(100vw - 32px)); }
   .inline-form { grid-template-columns: 1fr; }
   .nav { flex-wrap: wrap; }
 }
+
+/* กล่องยืนยัน */
+dialog.confirm { width: min(440px, calc(100vw - 32px)); }
+dialog.confirm .dlg-body p { margin: 0; font-size: 17px; }
+.btn-danger-solid { background: var(--brake); border-color: var(--brake); color: #fff; }
+.btn-danger-solid:hover { background: #a92d23; }

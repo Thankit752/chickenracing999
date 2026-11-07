@@ -48,3 +48,53 @@ const STATUS_TH = {
 };
 export const badge = (s) => `<span class="badge ${s}">${STATUS_TH[s] ?? s}</span>`;
 export const ROLE_TH = { LEAD: 'ผู้ปิดการขาย', ASSIST: 'ผู้ช่วยขาย', REFERRAL: 'ผู้แนะนำ' };
+
+// ---------- กล่องยืนยัน (ใช้แทน confirm() ของเบราว์เซอร์ หน้าตาเดียวกับทั้งเว็บ) ----------
+// คืน Promise<boolean> — true เมื่อกดปุ่มยืนยัน · Esc หรือปุ่มยกเลิก = false
+export function confirmBox(message, { title = 'ยืนยันอีกครั้ง', ok = 'ยืนยัน', cancel = 'ไม่ใช่', danger = false } = {}) {
+  return new Promise((resolve) => {
+    const dlg = document.createElement('dialog');
+    dlg.className = 'confirm';
+    dlg.setAttribute('aria-labelledby', 'confirmTitle');
+    dlg.innerHTML = `
+      <div class="dlg-head"><h2 id="confirmTitle">${esc(title)}</h2></div>
+      <div class="dlg-body"><p>${esc(message)}</p></div>
+      <div class="dlg-foot">
+        <button class="btn" type="button" data-answer="no">${esc(cancel)}</button>
+        <button class="btn ${danger ? 'btn-danger-solid' : 'btn-primary'}" type="button" data-answer="yes">${esc(ok)}</button>
+      </div>`;
+    document.body.append(dlg);
+    let done = false;
+    const finish = (answer) => {
+      if (done) return;
+      done = true;
+      dlg.close();
+      dlg.remove();
+      resolve(answer);
+    };
+    dlg.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-answer]');
+      if (b) finish(b.dataset.answer === 'yes');
+    });
+    dlg.addEventListener('cancel', (e) => { e.preventDefault(); finish(false); });   // กด Esc = ไม่ยืนยัน
+    dlg.showModal();
+    dlg.querySelector('[data-answer="no"]').focus();   // ปุ่มที่ปลอดภัยได้โฟกัสก่อน กด Enter พลาดจะไม่เสียข้อมูล
+  });
+}
+
+// ---------- กันปิดฟอร์มแล้วข้อมูลที่กรอกหาย ----------
+// mark() จดค่าตั้งต้นหลังเปิดฟอร์ม · tryClose() ถ้ามีการแก้ไขจะถามก่อนปิด (รวมถึงกด Esc)
+const snapshot = (form) => JSON.stringify([...form.elements].map((e) =>
+  (e.type === 'radio' || e.type === 'checkbox' ? e.checked : e.value)));
+export function guardForm(dlg, form) {
+  let initial = snapshot(form);
+  const mark = () => { initial = snapshot(form); };
+  const isDirty = () => snapshot(form) !== initial;
+  const tryClose = async () => {
+    if (!isDirty() || await confirmBox('ข้อมูลที่กรอกไว้จะหายไป', {
+      title: 'ทิ้งข้อมูลที่กรอก?', ok: 'ทิ้งข้อมูล', cancel: 'กรอกต่อ', danger: true,
+    })) dlg.close();
+  };
+  dlg.addEventListener('cancel', (e) => { e.preventDefault(); tryClose(); });
+  return { mark, tryClose, isDirty };
+}

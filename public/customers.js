@@ -1,4 +1,4 @@
-import { api, esc, toast } from './common.js';
+import { api, esc, toast, confirmBox, guardForm } from './common.js';
 
 const rows = document.getElementById('rows');
 const search = document.getElementById('search');
@@ -71,6 +71,7 @@ function openForm(c = null) {
   form.elements.customer_type.value = c?.customer_type ?? 'INDIVIDUAL';
   phoneRows.innerHTML = '';
   (c?.phones.length ? c.phones : [{ phone_no: '', phone_type: 'MOBILE', is_primary: true }]).forEach(addPhoneRow);
+  guard.mark();
   dlg.showModal();
   form.elements.first_name.focus();
 }
@@ -119,7 +120,9 @@ rows.addEventListener('click', async (e) => {
   if (edit) openForm(customers.find((c) => c.customer_id === Number(edit.dataset.edit)));
   if (del) {
     const c = customers.find((x) => x.customer_id === Number(del.dataset.del));
-    if (!confirm(`ลบ ${c.first_name} ${c.last_name} และเบอร์โทรทั้ง ${c.phones.length} เบอร์?`)) return;
+    if (!await confirmBox(`ลบ ${c.first_name} ${c.last_name} และเบอร์โทรทั้ง ${c.phones.length} เบอร์ ลบแล้วกู้คืนไม่ได้`, {
+      title: 'ลบลูกค้า?', ok: 'ลบลูกค้า', cancel: 'ไม่ลบ', danger: true,
+    })) return;
     try {
       await api(`/api/customers/${c.customer_id}`, { method: 'DELETE' });
       toast('ลบลูกค้าแล้ว');
@@ -132,7 +135,8 @@ rows.addEventListener('click', async (e) => {
 
 document.getElementById('addBtn').addEventListener('click', () => openForm());
 document.getElementById('addPhone').addEventListener('click', () => addPhoneRow());
-document.getElementById('cancelBtn').addEventListener('click', () => dlg.close());
+const guard = guardForm(dlg, form);
+document.getElementById('cancelBtn').addEventListener('click', () => guard.tryClose());
 let timer;
 search.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 250); });
 

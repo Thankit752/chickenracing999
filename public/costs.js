@@ -1,4 +1,4 @@
-import { api, esc, baht, int, dateTh, today, badge, toast } from './common.js';
+import { api, esc, baht, int, dateTh, today, badge, toast, confirmBox, guardForm } from './common.js';
 
 const rows = document.getElementById('rows');
 const filter = document.getElementById('filter');
@@ -57,6 +57,7 @@ function resetForm() {
   document.getElementById('hcLegend').textContent = 'เพิ่มค่าใช้จ่ายแฝง';
   document.getElementById('hcSave').textContent = 'เพิ่มรายการ';
   document.getElementById('hcCancel').hidden = true;
+  guard.mark();
 }
 
 let costs = [];
@@ -123,10 +124,14 @@ hcRows.addEventListener('click', async (e) => {
     document.getElementById('hcLegend').textContent = 'แก้ไขค่าใช้จ่ายแฝง';
     document.getElementById('hcSave').textContent = 'บันทึกการแก้ไข';
     document.getElementById('hcCancel').hidden = false;
+    guard.mark();   // ค่าที่เพิ่งดึงมาแก้ถือเป็นค่าตั้งต้น ยังไม่นับว่าแก้
     hcForm.hc_amount.focus();
   }
   if (del) {
-    if (!confirm('ลบค่าใช้จ่ายแฝงรายการนี้?')) return;
+    const h = costs.find((x) => x.hidden_cost_id === Number(del.dataset.del));
+    if (!await confirmBox(`ลบ${h.category_name} ${baht(h.amount)} บาท ต้นทุนจริงของรถคันนี้จะลดลงตาม ลบแล้วกู้คืนไม่ได้`, {
+      title: 'ลบค่าใช้จ่ายแฝง?', ok: 'ลบรายการ', cancel: 'ไม่ลบ', danger: true,
+    })) return;
     try {
       await api(`/api/hidden-costs/${del.dataset.del}`, { method: 'DELETE' });
       if (editing === Number(del.dataset.del)) resetForm();
@@ -139,8 +144,14 @@ rows.addEventListener('click', (e) => {
   const b = e.target.closest('[data-unit]');
   if (b) openUnit(Number(b.dataset.unit));
 });
-document.getElementById('hcCancel').addEventListener('click', resetForm);
-document.getElementById('close').addEventListener('click', () => dlg.close());
+const guard = guardForm(dlg, hcForm);
+// ยกเลิกการแก้ไขก็ถามก่อน ถ้าแก้ค่าไปแล้ว
+document.getElementById('hcCancel').addEventListener('click', async () => {
+  if (!guard.isDirty() || await confirmBox('ค่าที่แก้ไว้จะหายไป', {
+    title: 'ยกเลิกการแก้ไข?', ok: 'ยกเลิกการแก้ไข', cancel: 'แก้ต่อ', danger: true,
+  })) resetForm();
+});
+document.getElementById('close').addEventListener('click', () => guard.tryClose());
 filter.addEventListener('change', render);
 search.addEventListener('input', render);
 

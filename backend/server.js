@@ -45,11 +45,16 @@ const CONSTRAINT_MESSAGES = {
   uq_hidden_unit_cat_date: 'รถคันนี้มีค่าใช้จ่ายหมวดนี้ในวันเดียวกันอยู่แล้ว (uq_hidden_unit_cat_date)',
   pk_sale_commission: 'พนักงานคนนี้มีค่านายหน้าในการขายนี้อยู่แล้ว (pk_sale_commission)',
   pk_customer_phone: 'ลูกค้ามีเบอร์นี้อยู่แล้ว (pk_customer_phone)',
+  uq_sale_one_lead: 'การขายนี้มีผู้ปิดการขาย (LEAD) แล้ว — หนึ่งดีลมี LEAD ได้คนเดียว (uq_sale_one_lead)',
 };
 const PG_ERRORS = {
   23503: { status: 409, message: 'ข้อมูลนี้ถูกอ้างอิงอยู่ หรืออ้างถึงข้อมูลที่ไม่มีอยู่ (FOREIGN KEY)' },
   23505: { status: 409, message: 'ข้อมูลซ้ำกับที่มีอยู่แล้ว' },
   23514: { status: 400, message: 'ข้อมูลไม่ผ่านเงื่อนไข CHECK' },
+  22007: { status: 400, message: 'รูปแบบวันที่ไม่ถูกต้อง' },
+  22008: { status: 400, message: 'วันที่ไม่มีอยู่จริง' },
+  '22P02': { status: 400, message: 'ชนิดข้อมูลไม่ถูกต้อง' },
+  22003: { status: 400, message: 'ตัวเลขเกินช่วงที่รับได้' },
   '28P01': { status: 500, message: 'รหัสผ่านฐานข้อมูลไม่ถูกต้อง — ตรวจ PGPASSWORD ในไฟล์ .env' },
   '3D000': { status: 500, message: 'ยังไม่มีฐานข้อมูล — รัน npm run db:setup ก่อน' },
   '42P01': { status: 500, message: 'ยังไม่มีตาราง — รัน npm run db:setup ก่อน' },
@@ -57,6 +62,8 @@ const PG_ERRORS = {
 
 app.use((err, req, res, next) => {
   if (err instanceof ValidationError) return res.status(400).json({ error: err.message });
+  // JSON ที่ส่งมาพัง (express.json แจ้ง status 400 มาเอง)
+  if (err.type === 'entity.parse.failed') return res.status(400).json({ error: 'ข้อมูลที่ส่งมาไม่ใช่ JSON ที่ถูกต้อง' });
   const known = PG_ERRORS[err.code];
   if (known) {
     const message = CONSTRAINT_MESSAGES[err.constraint] || known.message;

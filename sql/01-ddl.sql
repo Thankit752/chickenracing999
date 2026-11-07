@@ -276,6 +276,10 @@ CREATE TABLE sale_commission (
         REFERENCES salesperson(salesperson_id)           ON DELETE RESTRICT
 );
 
+-- หนึ่งการขายมีผู้ปิดการขาย (LEAD) ได้คนเดียว — partial unique index บังคับที่ฐานข้อมูล
+-- (ตรวจใน backend อย่างเดียวไม่พอ ถ้าสองคนบันทึกพร้อมกันจะหลุดได้)
+CREATE UNIQUE INDEX uq_sale_one_lead ON sale_commission (sale_id) WHERE role_in_deal = 'LEAD';
+
 -- ตารางที่ 14 : ค่าใช้จ่ายแฝงรายคัน — ตารางเชื่อม M:N (คันรถ × หมวดค่าใช้จ่าย)
 --   ค่าขนส่ง, PDI, จดทะเบียน, ดอกเบี้ยสต็อก ฯลฯ ที่ไม่อยู่ในราคาซื้อ
 CREATE TABLE hidden_cost (

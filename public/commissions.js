@@ -1,4 +1,4 @@
-import { api, esc, baht, int, dateTh, badge, toast, ROLE_TH } from './common.js';
+import { api, esc, baht, int, dateTh, badge, toast, ROLE_TH, confirmBox, guardForm } from './common.js';
 
 const summary = document.getElementById('summary');
 const rows = document.getElementById('rows');
@@ -52,6 +52,7 @@ function preview() {
 function openForm() {
   form.reset();
   formError.hidden = true;
+  guard.mark();
   dlg.showModal();
   preview();
 }
@@ -76,13 +77,19 @@ form.addEventListener('submit', async (e) => {
 rows.addEventListener('click', async (e) => {
   const pay = e.target.closest('[data-pay]');
   const del = e.target.closest('[data-del]');
+  const row = (pay || del)?.closest('tr');
+  const what = row ? `${row.cells[2].textContent} · ${row.cells[0].querySelector('div').textContent} · ${row.cells[6].textContent} บาท` : '';
   try {
-    if (pay) {
+    if (pay && await confirmBox(`บันทึกว่าจ่ายค่านายหน้าแล้ว: ${what} จ่ายแล้วแก้กลับหรือลบไม่ได้`, {
+      title: 'ยืนยันการจ่ายค่านายหน้า?', ok: 'บันทึกว่าจ่ายแล้ว', cancel: 'ยังไม่จ่าย',
+    })) {
       await api(`/api/commissions/${pay.dataset.pay}/pay`, { method: 'PATCH' });
       toast('บันทึกการจ่ายค่านายหน้าแล้ว');
       load();
     }
-    if (del && confirm('ลบค่านายหน้ารายการนี้?')) {
+    if (del && await confirmBox(`ลบค่านายหน้า: ${what} ลบแล้วกู้คืนไม่ได้`, {
+      title: 'ลบค่านายหน้า?', ok: 'ลบรายการ', cancel: 'ไม่ลบ', danger: true,
+    })) {
       await api(`/api/commissions/${del.dataset.del}`, { method: 'DELETE' });
       toast('ลบค่านายหน้าแล้ว');
       load();
@@ -91,7 +98,8 @@ rows.addEventListener('click', async (e) => {
 });
 
 document.getElementById('addBtn').addEventListener('click', openForm);
-document.getElementById('cancel').addEventListener('click', () => dlg.close());
+const guard = guardForm(dlg, form);
+document.getElementById('cancel').addEventListener('click', () => guard.tryClose());
 
 try {
   lk = await api('/api/lookups');
