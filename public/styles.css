@@ -72,7 +72,7 @@ main { max-width: 1240px; margin: 0 auto; padding: 32px 28px 64px; }
 .btn:disabled { opacity: .5; cursor: progress; }
 
 /* ---------- หน้า 5 คำสั่งสืบค้น ---------- */
-.q-layout { display: grid; grid-template-columns: 300px 1fr; gap: 28px; align-items: start; }
+.q-layout { display: grid; grid-template-columns: 260px 1fr; gap: 28px; align-items: start; }
 .q-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; position: sticky; top: 20px; }
 .q-list button {
   width: 100%; text-align: left; background: transparent; border: 0; cursor: pointer;
@@ -113,7 +113,8 @@ main { max-width: 1240px; margin: 0 auto; padding: 32px 28px 64px; }
 /* ---------- ตารางผลลัพธ์ ---------- */
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-m); background: var(--paper); }
 table { border-collapse: collapse; width: 100%; font-size: 15px; }
-th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #e7ebee; white-space: nowrap; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e7ebee; white-space: nowrap; }
+th { white-space: normal; vertical-align: bottom; } /* หัวคอลัมน์ยาวขึ้นบรรทัดใหม่ได้ ตารางจะได้ไม่ล้นจอ */
 th { font: 600 14px/1.3 var(--font-head); background: #f3f5f6; color: var(--asphalt); position: sticky; top: 0; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 tbody tr:last-child td { border-bottom: 0; }

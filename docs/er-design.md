@@ -146,10 +146,10 @@
 ## 6. วิธีรันสคริปต์
 
 ```bash
-psql -U postgres -d ce396_moto -f sql/01-ddl.sql
-psql -U postgres -d ce396_moto -f sql/02-sample-data.sql
-psql -U postgres -d ce396_moto -f sql/03-business-queries.sql
-psql -U postgres -d ce396_moto -f sql/04-verify.sql
+psql -U postgres -d ChickenRacing -f sql/01-ddl.sql
+psql -U postgres -d ChickenRacing -f sql/02-sample-data.sql
+psql -U postgres -d ChickenRacing -f sql/03-business-queries.sql
+psql -U postgres -d ChickenRacing -f sql/04-verify.sql
 ```
 
 หรือใน pgAdmin 4: เปิด Query Tool → เปิดไฟล์ → Execute (F5) ตามลำดับ 01 → 02 → 03 → 04 (ผลทดลองละเมิดข้อกำหนดอยู่ในแท็บ Messages)

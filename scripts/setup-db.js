@@ -4,10 +4,10 @@ import pg from 'pg';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const dbName = process.env.PGDATABASE || 'ce396_moto';
+const dbName = process.env.PGDATABASE || 'ChickenRacing';
 const sqlFile = (name) => readFileSync(fileURLToPath(new URL(`../sql/${name}`, import.meta.url)), 'utf8');
 
-// 1) ต่อฐานข้อมูลระบบ postgres เพื่อสร้าง ce396_moto
+// 1) ต่อฐานข้อมูลระบบ postgres เพื่อสร้าง ChickenRacing
 const admin = new pg.Client({ database: 'postgres' });
 await admin.connect();
 const { rowCount } = await admin.query('SELECT 1 FROM pg_database WHERE datname = $1', [dbName]);

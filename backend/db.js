@@ -4,6 +4,8 @@ import pg from 'pg';
 
 // numeric (OID 1700) ส่งกลับมาเป็นสตริงโดยค่าเริ่มต้น — แปลงเป็นตัวเลขเพื่อจัดรูปแบบบนหน้าเว็บ
 pg.types.setTypeParser(1700, (v) => (v === null ? null : Number(v)));
+// bigint (OID 20) จาก COUNT(*) — ค่าในโครงงานนี้ไม่เกินช่วงตัวเลขของ JavaScript
+pg.types.setTypeParser(20, (v) => (v === null ? null : Number(v)));
 // date (OID 1082) — เก็บเป็นสตริง YYYY-MM-DD ไม่ให้เลื่อนวันตาม timezone
 pg.types.setTypeParser(1082, (v) => v);
 

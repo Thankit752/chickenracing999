@@ -1,4 +1,4 @@
-import { api, fmt, esc } from './common.js';
+import { api, fmt, fmtNumber, esc } from './common.js';
 
 const list = document.getElementById('qList');
 const panel = document.getElementById('qPanel');
@@ -50,10 +50,18 @@ async function run(q) {
     const r = await api(`/api/queries/${q.id}/run`, { method: 'POST' });
     meta.textContent = `ได้ ${r.rowCount} แถว · ${r.ms} มิลลิวินาที`;
     if (r.rowCount === 0) { out.innerHTML = '<div class="table-wrap"><p class="empty">ไม่มีแถวที่ตรงเงื่อนไข</p></div>'; return; }
-    const numeric = r.fields.map((f) => r.rows.every((row) => row[f] === null || typeof row[f] === 'number'));
+    // OID ของ PostgreSQL: จำนวนเต็ม (int2/int4/int8) ไม่มีทศนิยม · numeric/float แสดง 2 ตำแหน่ง
+    const INTEGER = [20, 21, 23];
+    const DECIMAL = [700, 701, 1700];
+    const cols = r.fields.map((f) => ({
+      ...f,
+      num: INTEGER.includes(f.type) || DECIMAL.includes(f.type),
+      digits: DECIMAL.includes(f.type) ? 2 : 0,
+    }));
+    const cell = (c, v) => (c.num && typeof v === 'number' ? fmtNumber(v, c.digits) : fmt(v));
     out.innerHTML = `<div class="table-wrap"><table>
-      <thead><tr>${r.fields.map((f, i) => `<th class="${numeric[i] ? 'num' : ''}">${esc(f)}</th>`).join('')}</tr></thead>
-      <tbody>${r.rows.map((row) => `<tr>${r.fields.map((f, i) => `<td class="${numeric[i] ? 'num' : ''}">${esc(fmt(row[f]))}</td>`).join('')}</tr>`).join('')}</tbody>
+      <thead><tr>${cols.map((c) => `<th class="${c.num ? 'num' : ''}">${esc(c.name)}</th>`).join('')}</tr></thead>
+      <tbody>${r.rows.map((row) => `<tr>${cols.map((c) => `<td class="${c.num ? 'num' : ''}">${esc(cell(c, row[c.name]))}</td>`).join('')}</tr>`).join('')}</tbody>
     </table></div>`;
   } catch (err) {
     meta.textContent = '';
@@ -82,6 +90,11 @@ list.addEventListener('keydown', (e) => {   // ลูกศรขึ้น/ล�
   select(next);
   list.querySelector(`[data-id="${next}"]`).focus();
   e.preventDefault();
+});
+
+window.addEventListener('hashchange', () => {
+  const id = Number(location.hash.replace('#q', ''));
+  if (id && queries.length && list.querySelector('[aria-selected="true"]')?.dataset.id != id) select(id);
 });
 
 try {

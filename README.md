@@ -6,7 +6,7 @@
 ## โครงสร้าง
 
 ```
-erd/        แผนภาพ ER — erd.mmd (Mermaid, v2 ล่าสุด) · erd-v1.png (ฉบับก่อนเพิ่ม customer_phone)
+erd/        แผนภาพ ER — erd.png + erd.mmd (v2 ล่าสุด, ต้นฉบับแก้ได้) · erd-v1.png (ฉบับก่อนเพิ่ม customer_phone)
 sql/        01-ddl.sql · 02-sample-data.sql (ทุกตาราง ≥ 10 แถว) · 03-business-queries.sql · 04-verify.sql
 docs/       er-design.md — เหตุผลการออกแบบ + ภาคผนวก v2 (multivalued)
 slides/     สไลด์นำเสนอ
@@ -22,7 +22,7 @@ scripts/    setup-db.js — สร้างฐานข้อมูลและ�
    npm install
    ```
 2. คัดลอก `.env.example` เป็น `.env` แล้วใส่รหัสผ่าน postgres ของเครื่องตัวเองที่ `PGPASSWORD`
-3. สร้างฐานข้อมูล `ce396_moto` + ตาราง + ข้อมูลตัวอย่าง (รันซ้ำได้ ข้อมูลกลับเป็นค่าตั้งต้น)
+3. สร้างฐานข้อมูล `ChickenRacing` + ตาราง + ข้อมูลตัวอย่าง (รันซ้ำได้ ข้อมูลกลับเป็นค่าตั้งต้น)
    ```bash
    npm run db:setup
    ```

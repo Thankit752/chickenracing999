@@ -21,7 +21,8 @@ app.post('/api/queries/:id/run', async (req, res, next) => {
     const started = performance.now();
     const result = await pool.query(q.sql);
     res.json({
-      fields: result.fields.map((f) => f.name),
+      // ส่งชนิดข้อมูล (OID) ไปด้วย ให้หน้าเว็บรู้ว่าคอลัมน์ไหนเป็นเงิน (numeric) คอลัมน์ไหนเป็นจำนวนนับ
+      fields: result.fields.map((f) => ({ name: f.name, type: f.dataTypeID })),
       rows: result.rows,
       rowCount: result.rowCount,
       ms: Math.round(performance.now() - started),

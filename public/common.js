@@ -14,6 +14,10 @@ export async function api(path, options = {}) {
 const money = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 export const fmt = (v) => (typeof v === 'number' ? money.format(v) : v ?? '—');
 
+// จัดรูปแบบตัวเลขด้วยจำนวนทศนิยมคงที่ เช่น เงิน 5,442.50 · จำนวนนับ 7
+export const fmtNumber = (v, digits) =>
+  v.toLocaleString('th-TH', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+
 export function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
